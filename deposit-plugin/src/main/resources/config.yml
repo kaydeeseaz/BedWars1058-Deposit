@@ -1,0 +1,42 @@
+# ──────────────────────────────────────────────────────────────
+#   Deposit Punch - BedWars1058 Addon Configuration
+# ──────────────────────────────────────────────────────────────
+#   This configuration file controls various aspects of the addon.
+#   Make sure to read the comments carefully before changing any settings.
+# ──────────────────────────────────────────────────────────────
+
+# LOG LEVEL:
+# Determines the level of logging that will be shown in the console.
+# Higher levels provide less detail, while lower levels provide more.
+# Available options:
+# - SEVERE   → Shows only critical errors.
+# - WARNING  → Displays warnings and serious issues.
+# - INFO     → Standard logging (recommended for most cases).
+# - CONFIG   → Shows additional configuration details.
+# - FINE     → Provides debugging information (useful for developers).
+# - FINER    → Even more detailed debugging logs.
+# - FINEST   → Maximum debugging details (may spam the console).
+# Default is INFO. Change only if needed for debugging purposes.
+log-level: INFO
+
+# ──────────────────────────────────────────────────────────────
+
+# DISABLE HOLOGRAM AFTER DEATH:
+# If enabled (true), the deposit hologram will be removed after the player dies.
+# If disabled (false), the hologram remains until the game decides to remove it.
+# This feature is currently not active but will be available in a future update.
+# Do NOT change this setting unless explicitly instructed by the developer.
+# disable-hologram-after-death: false
+
+# ──────────────────────────────────────────────────────────────
+
+# HOLOGRAM REGISTER EVENT:
+# Determines when the deposit hologram should be registered in the game.
+# Available options:
+# - GameStateChangeEvent → Registers the hologram when the game state changes.
+# - TeamAssignEvent      → Registers the hologram when a player is assigned to a team.
+# ⚠ WARNING: This setting should only be changed if:
+#   1. The plugin itself tells you to do so.
+#   2. The developer (that's me!) explicitly instructs you to modify it.
+# Incorrect settings may cause unexpected behavior, so modify with caution.
+hologram-register-event: GameStateChangeEvent
