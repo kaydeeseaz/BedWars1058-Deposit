@@ -178,7 +178,7 @@ public class GameStartListener implements Listener {
                 }
 
                 config.set(path, chestLocations);
-                plugin.saveConfig();
+                ArenasConfig.save();
                 DepositPlugin.debug("Chest locations saved to config");
             }
 

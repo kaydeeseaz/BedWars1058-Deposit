@@ -6,6 +6,7 @@ import me.parsa.depositplugin.DepositPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -60,14 +61,15 @@ public class EnderChestClick implements Listener {
                                     String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
                                             .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
                                             .collect(Collectors.joining(" "));
-                                    p.sendMessage(ChatColor.GRAY + p.getName() + " deposited x" + item.getAmount() + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
                                 } else {
                                     String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
                                             .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
                                             .collect(Collectors.joining(" "));
-                                    p.sendMessage(ChatColor.GRAY + p.getName() + " deposited x" + item.getAmount() + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
                                 }
                                 p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
+                                p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
                                 p.setItemInHand(null);
                                 enderChest.addItem(item);
                             } else {
@@ -126,12 +128,12 @@ public class EnderChestClick implements Listener {
                             Bukkit.getPluginManager().callEvent(playerDepositEvent);
                             if (!playerDepositEvent.isCancelled()) {
                                 if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
-                                    p.sendMessage(ChatColor.GRAY + p.getName() + " deposited x" + item.getAmount() + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
                                 } else {
-                                    p.sendMessage(ChatColor.GRAY + p.getName() + " deposited x" + item.getAmount() + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
                                 }
                                 p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the chest");
-
+                                p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
                                 p.setItemInHand(null);
 
                                 chestInventory.addItem(item);

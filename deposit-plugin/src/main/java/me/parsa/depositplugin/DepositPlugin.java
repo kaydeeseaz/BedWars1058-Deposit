@@ -1,6 +1,7 @@
 package me.parsa.depositplugin;
 
 import com.andrei1058.bedwars.api.BedWars;
+import com.andrei1058.bedwars.api.server.VersionSupport;
 import me.parsa.depositapi.DepositApi;
 import me.parsa.depositplugin.Configs.ArenasConfig;
 import me.parsa.depositplugin.Listeners.EnderChestClick;
