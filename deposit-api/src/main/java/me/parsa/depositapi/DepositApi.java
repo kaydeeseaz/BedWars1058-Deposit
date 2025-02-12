@@ -2,6 +2,7 @@ package me.parsa.depositapi;
 
 
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.List;
 
@@ -21,6 +22,12 @@ public interface DepositApi {
          * @return All chest locations (String list)
          */
         List<String> getArenaChests(World arena);
+
+        /**
+         * Get config for deposit arenas chestLocations.yml
+         * @return FileConfiguration
+         */
+        FileConfiguration getArenasConfig();
 
     }
 
