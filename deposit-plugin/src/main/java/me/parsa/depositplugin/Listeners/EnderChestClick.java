@@ -16,6 +16,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ public class EnderChestClick implements Listener {
                 if (bedwarsAPI.getArenaUtil().isPlaying(p)) {
                     DepositPlugin.debug("Player is playing and clicked ");
                     ItemStack item = p.getItemInHand();
+                    Material itemMat = item.getType();
                     Inventory enderChest = p.getEnderChest();
                     if (item.getType() != Material.AIR &&
                             item.getType() != Material.WOOD_SWORD &&
@@ -57,21 +59,41 @@ public class EnderChestClick implements Listener {
                             PlayerDepositEvent playerDepositEvent = new PlayerDepositEvent(p);
                             Bukkit.getPluginManager().callEvent(playerDepositEvent);
                             if (!playerDepositEvent.isCancelled()) {
-                                if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
-                                    String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
-                                            .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
-                                            .collect(Collectors.joining(" "));
-                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
-                                } else {
-                                    String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
-                                            .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
-                                            .collect(Collectors.joining(" "));
-                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
-                                }
-                                p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
-                                p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
-                                p.getInventory().removeItem(item);
-                                enderChest.addItem(item);
+                                final int[] itemCount = {0};
+                                new BukkitRunnable(){
+                                    @Override
+                                    public void run() {
+                                        for (ItemStack itemStack : p.getInventory().getContents()) {
+                                            if (itemStack == null) {
+                                                continue;
+                                            }
+                                            if (itemStack.getType() == itemMat) {
+                                                itemCount[0] = itemStack.getAmount() + itemCount[0];
+                                                p.getInventory().removeItem(item);
+                                                enderChest.addItem(item);
+                                            }
+                                        }
+                                        if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
+                                            String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
+                                                    .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                                                    .collect(Collectors.joining(" "));
+                                            p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+                                        } else {
+                                            String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
+                                                    .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                                                    .collect(Collectors.joining(" "));
+                                            p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+                                        }
+                                        p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
+                                        p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
+
+
+                                    }
+                                }.runTaskAsynchronously(DepositPlugin.plugin);
+
+
+//                                p.getInventory().removeItem(item);
+
                             } else {
                                 DepositPlugin.warn("Player deposit event has been canceled");
                             }
@@ -94,6 +116,7 @@ public class EnderChestClick implements Listener {
                 if (bedwarsAPI.getArenaUtil().isPlaying(p)) {
                     DepositPlugin.debug("Player is playing and clicked ");
                     ItemStack item = p.getItemInHand();
+                    Material itemMat = item.getType();
                     String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
                             .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
                             .collect(Collectors.joining(" "));
@@ -127,16 +150,35 @@ public class EnderChestClick implements Listener {
                             PlayerDepositEvent playerDepositEvent = new PlayerDepositEvent(p);
                             Bukkit.getPluginManager().callEvent(playerDepositEvent);
                             if (!playerDepositEvent.isCancelled()) {
-                                if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
-                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
-                                } else {
-                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
-                                }
-                                p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the chest");
-                                p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
-                                p.getInventory().removeItem(item);
+                                final int[] itemCount = {0};
+                                new BukkitRunnable(){
+                                    @Override
+                                    public void run() {
+                                        for (ItemStack itemStack : p.getInventory().getContents()) {
+                                            if (itemStack == null) {
+                                                continue;
+                                            }
+                                            if (itemStack.getType() == itemMat) {
+                                                itemCount[0] = itemStack.getAmount() + itemCount[0];
+                                                p.getInventory().removeItem(item);
+                                                chestInventory.addItem(item);
+                                            }
 
-                                chestInventory.addItem(item);
+                                        }
+                                        if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
+                                            p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+                                        } else {
+                                            p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+                                        }
+                                        p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the chest");
+                                        p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
+                                        p.getInventory().removeItem(item);
+                                    }
+                                }.runTaskAsynchronously(DepositPlugin.plugin);
+
+
+
+
                             } else {
                                 DepositPlugin.warn("Player deposit event has been canceled");
                             }
