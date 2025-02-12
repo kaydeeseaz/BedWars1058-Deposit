@@ -70,7 +70,7 @@ public class EnderChestClick implements Listener {
                                 }
                                 p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
                                 p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
-                                p.setItemInHand(null);
+                                p.getInventory().removeItem(item);
                                 enderChest.addItem(item);
                             } else {
                                 DepositPlugin.warn("Player deposit event has been canceled");
@@ -134,7 +134,7 @@ public class EnderChestClick implements Listener {
                                 }
                                 p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the chest");
                                 p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
-                                p.setItemInHand(null);
+                                p.getInventory().removeItem(item);
 
                                 chestInventory.addItem(item);
                             } else {
