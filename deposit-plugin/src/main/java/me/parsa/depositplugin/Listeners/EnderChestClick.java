@@ -2,6 +2,7 @@ package me.parsa.depositplugin.Listeners;
 
 import com.andrei1058.bedwars.api.BedWars;
 import me.parsa.depositapi.Events.PlayerDepositEvent;
+import me.parsa.depositapi.Types.DepositType;
 import me.parsa.depositplugin.DepositPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -56,37 +57,56 @@ public class EnderChestClick implements Listener {
                         if (enderChest.firstEmpty() == -1) {
                             return;
                         } else {
-                            PlayerDepositEvent playerDepositEvent = new PlayerDepositEvent(p);
+                            PlayerDepositEvent playerDepositEvent = new PlayerDepositEvent(p, DepositType.ENDER_CHEST);
                             Bukkit.getPluginManager().callEvent(playerDepositEvent);
                             if (!playerDepositEvent.isCancelled()) {
                                 final int[] itemCount = {0};
                                 new BukkitRunnable(){
                                     @Override
                                     public void run() {
-                                        for (ItemStack itemStack : p.getInventory().getContents()) {
-                                            if (itemStack == null) {
-                                                continue;
+                                        if (DepositPlugin.plugin.getConfig().getBoolean("deposit-whole-itemstack")) {
+                                            for (ItemStack itemStack : p.getInventory().getContents()) {
+                                                if (itemStack == null) {
+                                                    continue;
+                                                }
+                                                if (itemStack.getType() == itemMat) {
+                                                    itemCount[0] = itemStack.getAmount() + itemCount[0];
+                                                    p.getInventory().removeItem(item);
+                                                    enderChest.addItem(item);
+                                                }
                                             }
-                                            if (itemStack.getType() == itemMat) {
-                                                itemCount[0] = itemStack.getAmount() + itemCount[0];
-                                                p.getInventory().removeItem(item);
-                                                enderChest.addItem(item);
+                                            if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
+                                                String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
+                                                        .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                                                        .collect(Collectors.joining(" "));
+                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+                                            } else {
+                                                String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
+                                                        .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                                                        .collect(Collectors.joining(" "));
+                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
                                             }
-                                        }
-                                        if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
-                                            String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
-                                                    .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
-                                                    .collect(Collectors.joining(" "));
-                                            p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
-                                        } else {
-                                            String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
-                                                    .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
-                                                    .collect(Collectors.joining(" "));
-                                            p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
-                                        }
-                                        p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
-                                        p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
+                                            p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
+                                            p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
 
+
+                                        } else {
+                                            if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
+                                                String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
+                                                        .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                                                        .collect(Collectors.joining(" "));
+                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+                                            } else {
+                                                String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
+                                                        .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                                                        .collect(Collectors.joining(" "));
+                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+                                            }
+                                            p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
+                                            p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
+                                            p.setItemInHand(null);
+                                            enderChest.addItem(item);
+                                        }
 
                                     }
                                 }.runTaskAsynchronously(DepositPlugin.plugin);
@@ -147,32 +167,45 @@ public class EnderChestClick implements Listener {
                         if (chestInventory.firstEmpty() == -1) {
                             return;
                         } else {
-                            PlayerDepositEvent playerDepositEvent = new PlayerDepositEvent(p);
+                            PlayerDepositEvent playerDepositEvent = new PlayerDepositEvent(p, DepositType.CHEST);
                             Bukkit.getPluginManager().callEvent(playerDepositEvent);
                             if (!playerDepositEvent.isCancelled()) {
                                 final int[] itemCount = {0};
                                 new BukkitRunnable(){
                                     @Override
                                     public void run() {
-                                        for (ItemStack itemStack : p.getInventory().getContents()) {
-                                            if (itemStack == null) {
-                                                continue;
-                                            }
-                                            if (itemStack.getType() == itemMat) {
-                                                itemCount[0] = itemStack.getAmount() + itemCount[0];
-                                                p.getInventory().removeItem(item);
-                                                chestInventory.addItem(item);
-                                            }
+                                        if (DepositPlugin.plugin.getConfig().getBoolean("deposit-whole-itemstack")) {
+                                            for (ItemStack itemStack : p.getInventory().getContents()) {
+                                                if (itemStack == null) {
+                                                    continue;
+                                                }
+                                                if (itemStack.getType() == itemMat) {
+                                                    itemCount[0] = itemStack.getAmount() + itemCount[0];
+                                                    p.getInventory().removeItem(item);
+                                                    chestInventory.addItem(item);
+                                                }
 
-                                        }
-                                        if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
-                                            p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+                                            }
+                                            if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
+                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+                                            } else {
+                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+                                            }
+                                            p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the chest");
+                                            p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
+                                            p.getInventory().removeItem(item);
                                         } else {
-                                            p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+                                            if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
+                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+                                            } else {
+                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+                                            }
+                                            p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the chest");
+                                            p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
+                                            p.setItemInHand(null);
+                                            chestInventory.addItem(item);
                                         }
-                                        p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the chest");
-                                        p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
-                                        p.getInventory().removeItem(item);
+
                                     }
                                 }.runTaskAsynchronously(DepositPlugin.plugin);
 

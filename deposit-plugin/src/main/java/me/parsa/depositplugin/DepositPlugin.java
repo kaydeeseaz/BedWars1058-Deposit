@@ -48,11 +48,11 @@ public final class DepositPlugin extends JavaPlugin {
         logger.setLevel(logLevel);
 
         debug("Log level set to: " + logLevel);
-        System.out.println("Log level set to: " + logLevel);
-        debug("This is a DEBUG message.");
-        info("This is an INFO message.");
-        warn("This is a WARNING message.");
-        error("This is an ERROR message.");
+//        System.out.println("Log level set to: " + logLevel);
+//        debug("This is a DEBUG message.");
+//        info("This is an INFO message.");
+//        warn("This is a WARNING message.");
+//        error("This is an ERROR message.");
 
     }
 
