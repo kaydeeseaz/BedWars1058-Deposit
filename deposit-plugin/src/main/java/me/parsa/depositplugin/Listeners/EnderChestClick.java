@@ -95,12 +95,12 @@ public class EnderChestClick implements Listener {
                                                 String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
                                                         .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
                                                         .collect(Collectors.joining(" "));
-                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
                                             } else {
                                                 String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
                                                         .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
                                                         .collect(Collectors.joining(" "));
-                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+                                                p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
                                             }
                                             p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
                                             p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
