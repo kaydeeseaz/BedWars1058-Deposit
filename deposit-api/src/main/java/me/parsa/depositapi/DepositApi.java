@@ -3,6 +3,7 @@ package me.parsa.depositapi;
 
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 
@@ -29,6 +30,21 @@ public interface DepositApi {
          */
         FileConfiguration getArenasConfig();
 
+    }
+
+    HologramUtil getHologramUtil();
+
+    interface HologramUtil {
+
+        /**
+         * Reloads holograms for an arena
+         */
+        void reloadHolograms(Player player);
+
+        /**
+         * True if every thing worked
+         */
+        boolean isHologramsWorked();
     }
 
 }

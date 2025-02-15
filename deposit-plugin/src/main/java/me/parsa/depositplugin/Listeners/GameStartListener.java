@@ -24,8 +24,9 @@ public class GameStartListener implements Listener {
 
     private final Plugin plugin;
     private final FileConfiguration config;
-    boolean successGameAssgin = false;
-    boolean succesGameState = false;
+    public boolean successGameAssgin = false;
+    public boolean succesGameState = false;
+    public boolean isReloaded = false;
 
     public GameStartListener(Plugin plugin, FileConfiguration config) {
         this.plugin = plugin;
@@ -223,6 +224,75 @@ public class GameStartListener implements Listener {
             }.runTaskLaterAsynchronously(DepositPlugin.plugin, 10L);
         }
 
+    }
+
+    public void createHolograms(Player player) {
+        DepositPlugin.debug("Reload Hologram triggered");
+        DepositPlugin.debug("Player: " + player.getName());
+        World world = player.getWorld();
+        isReloaded = true;
+        DepositPlugin.debug("World: " + (world != null ? world.getName() : "null"));
+
+        if (world == null) {
+            Bukkit.getLogger().warning("World is null for player " + player.getName());
+            return;
+        }
+
+        String worldName = world.getName();
+        DepositPlugin.debug("World Name: " + worldName);
+        String path = "worlds." + worldName + ".chestLocations";
+        DepositPlugin.debug("Config path: " + path);
+
+        if (!config.contains(path)) {
+            DepositPlugin.debug("First time loading the map, searching for chests");
+            List<String> chestLocations = new ArrayList<>();
+
+            for (Chunk chunk : world.getLoadedChunks()) {
+                DepositPlugin.debug("Checking chunk: " + chunk.getX() + ", " + chunk.getZ());
+                for (int x = 0; x < 16; x++) {
+                    for (int y = 0; y < world.getMaxHeight(); y++) {
+                        for (int z = 0; z < 16; z++) {
+                            Block block = chunk.getBlock(x, y, z);
+                            if (block.getType() == Material.ENDER_CHEST || block.getType() == Material.CHEST) {
+                                DepositPlugin.debug("Chest found at: " + block.getLocation());
+                                chestLocations.add(block.getLocation().getBlockX() + "," + block.getLocation().getBlockY() + "," + block.getLocation().getBlockZ());
+                            }
+                        }
+                    }
+                }
+            }
+
+            config.set(path, chestLocations);
+            ArenasConfig.save();
+            DepositPlugin.debug("Chest locations saved to config");
+        }
+
+        List<String> chestLocations = config.getStringList(path);
+        DepositPlugin.debug("Loaded " + chestLocations.size() + " chest locations from config");
+
+        String[] lines = {
+                ChatColor.GRAY + "DEPOSIT.",
+                ChatColor.GRAY + "PUNCH TO"
+        };
+
+        for (String locString : chestLocations) {
+            DepositPlugin.debug("Processing chest location: " + locString);
+            Location chestLocation = deserializeLocation(locString, world);
+            Location baseLocation = chestLocation.add(0.5, 0.9, 0.5);
+
+            for (int i = 0; i < lines.length; i++) {
+                Location hologramLocation = baseLocation.clone().add(0, 0.3 * i, 0);
+                DepositPlugin.debug("Spawning hologram at: " + hologramLocation);
+
+                ArmorStand hologram = (ArmorStand) world.spawnEntity(hologramLocation, EntityType.ARMOR_STAND);
+                hologram.setVisible(false);
+                hologram.setMarker(true);
+                hologram.setCustomName(lines[i]);
+                hologram.setCustomNameVisible(true);
+                hologram.setGravity(false);
+                DepositPlugin.debug("Hologram created with text: " + lines[i]);
+            }
+        }
     }
 
 }
