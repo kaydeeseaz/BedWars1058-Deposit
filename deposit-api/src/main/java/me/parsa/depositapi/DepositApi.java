@@ -45,6 +45,11 @@ public interface DepositApi {
          * True if every thing worked
          */
         boolean isHologramsWorked();
+
+        /**
+         * Deletes players holograms
+         */
+        void deleteHolograms(Player player);
     }
 
 }

@@ -10,6 +10,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -225,6 +226,43 @@ public class GameStartListener implements Listener {
         }
 
     }
+    public void deleteHolograms(Player player) {
+        DepositPlugin.debug("Deleting holograms for player: " + player.getName());
+        World world = player.getWorld();
+
+        if (world == null) {
+            Bukkit.getLogger().warning("World is null for player " + player.getName());
+            return;
+        }
+
+        String worldName = world.getName();
+        String path = "worlds." + worldName + ".chestLocations";
+
+        if (!config.contains(path)) {
+            DepositPlugin.debug("No chest locations found in config for world: " + worldName);
+            return;
+        }
+
+        List<String> chestLocations = config.getStringList(path);
+
+        for (String locString : chestLocations) {
+            Location chestLocation = deserializeLocation(locString, world);
+            Location baseLocation = chestLocation.clone().add(0.5, 0.9, 0.5);
+
+            for (Entity entity : world.getNearbyEntities(baseLocation, 1, 1, 1)) {
+                if (entity instanceof ArmorStand) {
+                    ArmorStand armorStand = (ArmorStand) entity;
+                    String name = armorStand.getCustomName();
+
+                    if (name != null && (name.equals(ChatColor.GRAY + "DEPOSIT.") || name.equals(ChatColor.GRAY + "PUNCH TO"))) {
+                        armorStand.remove();
+                        DepositPlugin.debug("Deleted hologram at: " + armorStand.getLocation());
+                    }
+                }
+            }
+        }
+    }
+
 
     public void createHolograms(Player player) {
         DepositPlugin.debug("Reload Hologram triggered");

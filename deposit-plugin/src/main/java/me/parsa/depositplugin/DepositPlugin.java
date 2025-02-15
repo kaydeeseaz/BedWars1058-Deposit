@@ -6,6 +6,7 @@ import me.parsa.depositapi.DepositApi;
 import me.parsa.depositplugin.Configs.ArenasConfig;
 import me.parsa.depositplugin.Listeners.EnderChestClick;
 import me.parsa.depositplugin.Listeners.GameStartListener;
+import me.parsa.depositplugin.Listeners.PlayerDeathListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -42,6 +43,7 @@ public final class DepositPlugin extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage("[Deposit] Registering events");
         getServer().getPluginManager().registerEvents(new EnderChestClick(), this);
         getServer().getPluginManager().registerEvents(new GameStartListener(this, ArenasConfig.get()), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
         Bukkit.getConsoleSender().sendMessage("[Deposit] Enabled plugin");
         String levelName = getConfig().getString("log-level", "INFO").toUpperCase();
         logLevel = Level.parse(levelName);

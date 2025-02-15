@@ -34,11 +34,14 @@ public class API implements DepositApi {
         @Override
         public boolean isHologramsWorked() {
             GameStartListener gameStartListener = new GameStartListener(DepositPlugin.plugin, ArenasConfig.get());
-            boolean success = false;
-            if (gameStartListener.succesGameState &&  gameStartListener.successGameAssgin || gameStartListener.isReloaded) {
-                success = true;
-            }
-            return success;
+            return gameStartListener.succesGameState && gameStartListener.successGameAssgin || gameStartListener.isReloaded;
+        }
+
+        @Override
+        public void deleteHolograms(Player player) {
+            GameStartListener gameStartListener = new GameStartListener(DepositPlugin.plugin, ArenasConfig.get());
+            DepositPlugin.debug("Trying to delete hd for " + player.getName());
+            gameStartListener.deleteHolograms(player);
         }
     };
 
