@@ -7,6 +7,7 @@ import me.parsa.depositplugin.Configs.ArenasConfig;
 import me.parsa.depositplugin.Listeners.EnderChestClick;
 import me.parsa.depositplugin.Listeners.GameStartListener;
 import me.parsa.depositplugin.Listeners.PlayerDeathListener;
+import me.parsa.depositplugin.commands.CommandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -41,6 +42,8 @@ public final class DepositPlugin extends JavaPlugin {
         ArenasConfig.save();
         saveDefaultConfig();
         Bukkit.getConsoleSender().sendMessage("[Deposit] Registering events");
+        BedWars bedwarsAPI = Bukkit.getServicesManager().getRegistration(BedWars.class).getProvider();
+        new CommandManager(bedwarsAPI.getBedWarsCommand(), "deposit");
         getServer().getPluginManager().registerEvents(new EnderChestClick(), this);
         getServer().getPluginManager().registerEvents(new GameStartListener(this, ArenasConfig.get()), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
