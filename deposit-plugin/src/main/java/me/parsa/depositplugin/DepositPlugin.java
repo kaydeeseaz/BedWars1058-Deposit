@@ -41,6 +41,12 @@ public final class DepositPlugin extends JavaPlugin {
         ArenasConfig.save();
         saveDefaultConfig();
         Bukkit.getConsoleSender().sendMessage("[Deposit] Registering events");
+        Bukkit.getConsoleSender().sendMessage("[Deposit] Hooking into bw1085");
+        if (Bukkit.getPluginManager().getPlugin("BedWars1058") == null) {
+            getLogger().severe("BedWars1058 was not found. Disabling...");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
         BedWars bedwarsAPI = Bukkit.getServicesManager().getRegistration(BedWars.class).getProvider();
         getServer().getPluginManager().registerEvents(new EnderChestClick(), this);
         getServer().getPluginManager().registerEvents(new GameStartListener(this, ArenasConfig.get()), this);
@@ -52,11 +58,6 @@ public final class DepositPlugin extends JavaPlugin {
         logger.setLevel(logLevel);
 
         debug("Log level set to: " + logLevel);
-//        System.out.println("Log level set to: " + logLevel);
-//        debug("This is a DEBUG message.");
-//        info("This is an INFO message.");
-//        warn("This is a WARNING message.");
-//        error("This is an ERROR message.");
 
     }
 
@@ -66,7 +67,6 @@ public final class DepositPlugin extends JavaPlugin {
     }
     public static void debug(String message) {
         if (logLevel.intValue() <= Level.FINE.intValue()) {
-            //System.out.println("DEBUG CALLED !");
             logger.info("[DEBUG] " + message);
         }
     }
