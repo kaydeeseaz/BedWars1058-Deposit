@@ -1,13 +1,9 @@
 package me.parsa.depositplugin;
 
 import com.andrei1058.bedwars.api.BedWars;
-import com.andrei1058.bedwars.api.server.VersionSupport;
 import me.parsa.depositapi.DepositApi;
 import me.parsa.depositplugin.Configs.ArenasConfig;
-import me.parsa.depositplugin.Listeners.EnderChestClick;
-import me.parsa.depositplugin.Listeners.GameStartListener;
-import me.parsa.depositplugin.Listeners.PlayerDeathListener;
-import me.parsa.depositplugin.commands.CommandManager;
+import me.parsa.depositplugin.Listeners.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,6 +19,7 @@ public final class DepositPlugin extends JavaPlugin {
 
     public static DepositPlugin plugin;
 
+
     public static BedWars bedWars;
 
     @Override
@@ -37,16 +34,18 @@ public final class DepositPlugin extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage("[Deposit] Enabling plugin");
         Bukkit.getConsoleSender().sendMessage("[Deposit] Loading version v" + getDescription().getVersion());
         Bukkit.getConsoleSender().sendMessage("[Deposit] Loading configs");
+
+
         ArenasConfig.setup();
         ArenasConfig.get().options().copyDefaults(true);
         ArenasConfig.save();
         saveDefaultConfig();
         Bukkit.getConsoleSender().sendMessage("[Deposit] Registering events");
         BedWars bedwarsAPI = Bukkit.getServicesManager().getRegistration(BedWars.class).getProvider();
-        new CommandManager(bedwarsAPI.getBedWarsCommand(), "deposit");
         getServer().getPluginManager().registerEvents(new EnderChestClick(), this);
         getServer().getPluginManager().registerEvents(new GameStartListener(this, ArenasConfig.get()), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerJoin(), this);
         Bukkit.getConsoleSender().sendMessage("[Deposit] Enabled plugin");
         String levelName = getConfig().getString("log-level", "INFO").toUpperCase();
         logLevel = Level.parse(levelName);

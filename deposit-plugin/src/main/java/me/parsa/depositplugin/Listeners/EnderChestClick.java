@@ -1,7 +1,6 @@
 package me.parsa.depositplugin.Listeners;
 
 import com.andrei1058.bedwars.api.BedWars;
-import com.andrei1058.bedwars.api.arena.IArena;
 import me.parsa.depositapi.Events.PlayerDepositEvent;
 import me.parsa.depositapi.Types.DepositType;
 import me.parsa.depositplugin.Configs.ArenasConfig;
@@ -73,37 +72,41 @@ public class EnderChestClick implements Listener {
     @EventHandler
     public void onPlayerLeftClickEnderChest(PlayerInteractEvent e) {
         Player p = e.getPlayer();
+        if (DepositPlugin.bedWars.isInSetupSession(p.getUniqueId())) {
+            if (p.isSneaking()) {
+                if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
+                    Block block = e.getClickedBlock();
+                    if (block == null) return;
 
 
-        if (selectionModePlayers.contains(e.getPlayer().getUniqueId())) {
-            if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
-                Block block = e.getClickedBlock();
-                if (block == null) return;
+                    if (block.getType() == Material.ENDER_CHEST || block.getType() == Material.CHEST) {
+                        String chestLocation = block.getLocation().getBlockX() + "," +
+                                block.getLocation().getBlockY() + "," +
+                                block.getLocation().getBlockZ();
+                        String path = "worlds." + p.getWorld().getName() + ".chestLocations";
+                        List<String> chestLocations = ArenasConfig.get().getStringList(path);
+
+                        if (!chestLocations.contains(chestLocation)) {
+                            chestLocations.add(chestLocation);
+                            ArenasConfig.get().set(path, chestLocations);
+                            ArenasConfig.save();
 
 
-                if (block.getType() == Material.ENDER_CHEST || block.getType() == Material.CHEST) {
-                    String chestLocation = block.getLocation().getBlockX() + "," +
-                            block.getLocation().getBlockY() + "," +
-                            block.getLocation().getBlockZ();
-                    String path = "worlds." + p.getWorld().getName() + ".chestLocations";
-                    List<String> chestLocations = ArenasConfig.get().getStringList(path);
+                            p.sendMessage(ChatColor.GREEN + "Chest location added: " + chestLocation);
+                            List<String> list = ArenasConfig.get().getStringList("worlds." + p.getWorld().getName() + ".chestLocations");
+                            int size = list.size();
+                            String the = "§6 ▪ §7ChestLocations: " + ((size == 0) ? "&c&l(NOT SET) " : (size < 16) ? "&e&l(NOT PROPERLY SET) " : (size == 16) ? "&a&l(SET) " : "&c&l(NOT SET) ") + "§8 - §eShift + Left-Click ";
+                            p.sendMessage(the);
+                            p.playSound(p.getLocation(), Sound.NOTE_STICKS, 1, 1);
+                            removePlayerFromSelectionMode(p);
+                            createHologram(block.getLocation(), ChatColor.GOLD + "Deposit Chest Set");
+                        } else {
+                            p.sendMessage(ChatColor.YELLOW + "This chest is already set!");
+                            removePlayerFromSelectionMode(p);
 
-                    if (!chestLocations.contains(chestLocation)) {
-                        chestLocations.add(chestLocation);
-                        ArenasConfig.get().set(path, chestLocations);
-                        ArenasConfig.save();
-
-
-                        p.sendMessage(ChatColor.GREEN + "Chest location added: " + chestLocation);
-                        p.playSound(p.getLocation(), Sound.NOTE_STICKS, 1, 1);
-                        removePlayerFromSelectionMode(p);
-                        createHologram(block.getLocation(), ChatColor.GOLD + "Deposit Chest Set");
-                    } else {
-                        p.sendMessage(ChatColor.YELLOW + "This chest is already set!");
-                        removePlayerFromSelectionMode(p);
-
+                        }
+                        e.setCancelled(true);
                     }
-                    e.setCancelled(true);
                 }
             }
         } else {
@@ -308,6 +311,9 @@ public class EnderChestClick implements Listener {
 
             }
         }
+
+
+
 
     }
     private String serializeLocation(Location location) {

@@ -4,7 +4,6 @@ import com.andrei1058.bedwars.api.arena.GameState;
 import com.andrei1058.bedwars.api.arena.IArena;
 import com.andrei1058.bedwars.api.events.gameplay.GameStateChangeEvent;
 import com.andrei1058.bedwars.api.events.gameplay.TeamAssignEvent;
-import me.parsa.depositapi.DepositApi;
 import me.parsa.depositplugin.Configs.ArenasConfig;
 import me.parsa.depositplugin.DepositPlugin;
 import org.bukkit.*;
@@ -263,11 +262,109 @@ public class GameStartListener implements Listener {
             }
         }
     }
+    public void createHDLocationsCustomArenaFile(IArena arena) {
+        if (arena == null) {
+            DepositPlugin.error("Arena is null, cannot process HD locations.");
+            return;
+        }
+
+        DepositPlugin.info("Processing HD locations for arena: " + arena.getWorldName());
+
+        World world = arena.getWorld();
+        if (world == null) {
+            Bukkit.getLogger().warning("World is null for arena " + arena.getArenaName());
+            return;
+        }
+
+        DepositPlugin.debug("World found: " + world.getName());
+        String worldName = world.getName();
+        String path = "worlds." + worldName + ".chestLocations";
+        DepositPlugin.debug("Config path: " + path);
+
+        if (!config.contains(path)) {
+            DepositPlugin.debug("First time loading the map, searching for chests in arena " + arena.getArenaName());
+            List<String> chestLocations = new ArrayList<>();
+
+            for (Chunk chunk : world.getLoadedChunks()) {
+                DepositPlugin.debug("Checking chunk: " + chunk.getX() + ", " + chunk.getZ());
+                for (int x = 0; x < 16; x++) {
+                    for (int y = 0; y < world.getMaxHeight(); y++) {
+                        for (int z = 0; z < 16; z++) {
+                            Block block = chunk.getBlock(x, y, z);
+                            if (block.getType() == Material.ENDER_CHEST || block.getType() == Material.CHEST) {
+                                DepositPlugin.debug("Chest found at: " + block.getLocation());
+                                chestLocations.add(serializeLocation(block.getLocation()));
+                            }
+                        }
+                    }
+                }
+            }
+
+            DepositPlugin.debug("Total chests found: " + chestLocations.size());
+            config.set(path, chestLocations);
+            ArenasConfig.save();
+            DepositPlugin.debug("Chest locations saved for arena " + arena.getArenaName());
+        } else {
+            DepositPlugin.debug("Chest locations already exist for arena " + arena.getArenaName());
+        }
+
+        DepositPlugin.info("Finished processing arena: " + arena.getArenaName());
+    }
+    public void createHDLocationsCustomArena(World arena) {
+        if (arena == null) {
+            DepositPlugin.error("Arena is null, cannot process HD locations.");
+            return;
+        }
+
+        DepositPlugin.info("Processing HD locations for arena: " + arena.getName());
+
+        World world = arena;
+        if (world == null) {
+            Bukkit.getLogger().warning("World is null for arena " + arena.getName());
+            return;
+        }
+
+        DepositPlugin.debug("World found: " + world.getName());
+        String worldName = world.getName();
+        String path = "worlds." + worldName + ".chestLocations";
+        DepositPlugin.debug("Config path: " + path);
+
+        if (!config.contains(path)) {
+            DepositPlugin.debug("First time loading the map, searching for chests in arena " + arena.getName());
+            List<String> chestLocations = new ArrayList<>();
+
+            for (Chunk chunk : world.getLoadedChunks()) {
+                DepositPlugin.debug("Checking chunk: " + chunk.getX() + ", " + chunk.getZ());
+                for (int x = 0; x < 16; x++) {
+                    for (int y = 0; y < world.getMaxHeight(); y++) {
+                        for (int z = 0; z < 16; z++) {
+                            Block block = chunk.getBlock(x, y, z);
+                            if (block.getType() == Material.ENDER_CHEST || block.getType() == Material.CHEST) {
+                                DepositPlugin.debug("Chest found at: " + block.getLocation());
+                                chestLocations.add(serializeLocation(block.getLocation()));
+                            }
+                        }
+                    }
+                }
+            }
+
+            DepositPlugin.debug("Total chests found: " + chestLocations.size());
+            config.set(path, chestLocations);
+            ArenasConfig.save();
+            DepositPlugin.debug("Chest locations saved for arena " + arena.getName());
+        } else {
+            DepositPlugin.debug("Chest locations already exist for arena " + arena.getName());
+        }
+
+        DepositPlugin.info("Finished processing arena: " + arena.getName());
+    }
+
     public void createHDLocations() {
         DepositPlugin.debug("Creating HD locations for all arenas");
+        //DepositPlugin.info("It looks like you added a map & its the first time running the plugin");
 
         for (IArena arena : DepositPlugin.bedWars.getArenaUtil().getArenas()) {
-            DepositPlugin.debug("Processing arena: " + arena.getWorldName());
+            DepositPlugin.info("Processing arena: " + arena.getWorldName());
             World world = arena.getWorld();
             if (world == null) {
                 Bukkit.getLogger().warning("World is null for arena " + arena.getWorldName());
@@ -306,7 +403,7 @@ public class GameStartListener implements Listener {
                 DepositPlugin.debug("Chest locations already exist for arena " + arena.getWorldName());
             }
         }
-        DepositPlugin.debug("Finished processing all arenas");
+        DepositPlugin.info("Finished processing all arenas");
     }
 
     public void createHolograms(Player player) {

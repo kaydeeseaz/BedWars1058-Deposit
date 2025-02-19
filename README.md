@@ -1,6 +1,6 @@
 ![img](https://imgurl.ir/uploads/u015825_minecraft_title_15.png)
 
-# BedWars-1058 Deposit Addon 🏰💎
+# BedWars-1058 Deposit Addon 
 
 This is a **BedWars-1058 deposit addon** designed to enhance gameplay by allowing players to **deposit items efficiently**. Inspired by Hypixel's system, this addon provides a convenient way for players to **manage their resources** during the game. ⚔️🔥
 
