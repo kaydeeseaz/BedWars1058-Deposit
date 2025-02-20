@@ -1,6 +1,7 @@
 package me.parsa.depositapi.Events;
 
 import me.parsa.depositapi.Types.DepositType;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -15,9 +16,16 @@ public class PlayerDepositEvent extends Event {
 
     DepositType depositType;
 
-    public PlayerDepositEvent(Player player, DepositType depositType) {
+    Block block;
+
+    public Block getBlock() {
+        return block;
+    }
+
+    public PlayerDepositEvent(Player player, DepositType depositType, Block block) {
         this.player = player;
         this.depositType = depositType;
+        this.block = block;
     }
 
     public DepositType getDepositType() {

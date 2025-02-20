@@ -1,6 +1,12 @@
 package me.parsa.depositplugin.Listeners;
 
 import com.andrei1058.bedwars.api.BedWars;
+import com.andrei1058.bedwars.api.arena.IArena;
+import com.andrei1058.bedwars.api.arena.team.ITeam;
+import com.andrei1058.bedwars.api.configuration.ConfigPath;
+import com.andrei1058.bedwars.api.language.Messages;
+import com.andrei1058.bedwars.arena.Arena;
+import com.sun.tools.doclint.HtmlTag;
 import me.parsa.depositapi.Events.PlayerDepositEvent;
 import me.parsa.depositapi.Types.DepositType;
 import me.parsa.depositplugin.Configs.ArenasConfig;
@@ -25,6 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static com.andrei1058.bedwars.api.language.Language.getMsg;
 
 public class EnderChestClick implements Listener {
 
@@ -139,7 +147,7 @@ public class EnderChestClick implements Listener {
                             if (enderChest.firstEmpty() == -1) {
                                 return;
                             } else {
-                                PlayerDepositEvent playerDepositEvent = new PlayerDepositEvent(p, DepositType.ENDER_CHEST);
+                                PlayerDepositEvent playerDepositEvent = new PlayerDepositEvent(p, DepositType.ENDER_CHEST, e.getClickedBlock());
                                 Bukkit.getPluginManager().callEvent(playerDepositEvent);
                                 if (!playerDepositEvent.isCancelled()) {
                                     final int[] itemCount = {0};
@@ -186,7 +194,7 @@ public class EnderChestClick implements Listener {
                                                 }
                                                 p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
                                                 p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
-                                                p.setItemInHand(null);
+                                                p.getInventory().removeItem(item);
                                                 enderChest.addItem(item);
                                             }
 
@@ -250,7 +258,7 @@ public class EnderChestClick implements Listener {
                             if (chestInventory.firstEmpty() == -1) {
                                 return;
                             } else {
-                                PlayerDepositEvent playerDepositEvent = new PlayerDepositEvent(p, DepositType.CHEST);
+                                PlayerDepositEvent playerDepositEvent = new PlayerDepositEvent(p, DepositType.CHEST, clickedBlock);
                                 Bukkit.getPluginManager().callEvent(playerDepositEvent);
                                 if (!playerDepositEvent.isCancelled()) {
                                     final int[] itemCount = {0};
@@ -316,6 +324,67 @@ public class EnderChestClick implements Listener {
 
 
     }
+
+    @EventHandler
+    public void enderChestClick(PlayerDepositEvent event) {
+        if (event.getDepositType() == DepositType.CHEST) {
+            Player p = event.getPlayer();
+            DepositPlugin.debug("Checking deposit event for player: " + p.getName());
+
+            IArena a = DepositPlugin.bedWars.getArenaUtil().getArenaByPlayer(p);
+            if (a == null) {
+                DepositPlugin.debug("Arena is null for player: " + p.getName());
+                return;
+            }
+
+            ITeam owner = null;
+            int isRad = a.getConfig().getInt(ConfigPath.ARENA_ISLAND_RADIUS);
+            DepositPlugin.debug("Arena radius: " + isRad);
+
+            Block block = event.getBlock();
+            if (block == null) {
+                DepositPlugin.debug("Block is null for player: " + p.getName());
+                return;
+            }
+
+            Location blockLoc = block.getLocation();
+            DepositPlugin.debug("Block location: " + blockLoc);
+
+            for (ITeam t : a.getTeams()) {
+                if (t == null || t.getSpawn() == null) {
+                    DepositPlugin.debug("Skipping team due to null spawn.");
+                    continue;
+                }
+                DepositPlugin.debug("Checking team: " + t.getName() + " with spawn at " + t.getSpawn());
+
+                if (t.getSpawn().distance(blockLoc) <= isRad) {
+                    owner = t;
+                    DepositPlugin.debug("Found owner: " + t.getName());
+                }
+            }
+
+            if (owner != null) {
+                if (!owner.isMember(p)) {
+                    DepositPlugin.debug("Player " + p.getName() + " is NOT a member of " + owner.getName());
+
+                    if (!(owner.getMembers().isEmpty() && owner.isBedDestroyed())) {
+                        DepositPlugin.debug("Team " + owner.getName() + " is still in the game. Cancelling event.");
+                        event.setCancelled(true);
+                        p.sendMessage(getMsg(p, Messages.INTERACT_CHEST_CANT_OPEN_TEAM_ELIMINATED));
+                    } else {
+                        DepositPlugin.debug("Team " + owner.getName() + " is eliminated, allowing chest interaction.");
+                    }
+                } else {
+                    DepositPlugin.debug("Player " + p.getName() + " is a member of " + owner.getName() + ", allowing access.");
+                }
+            } else {
+                DepositPlugin.debug("No team owns this chest.");
+            }
+
+        }
+
+    }
+
     private String serializeLocation(Location location) {
         DepositPlugin.debug("Serializing location: " + location);
         return location.getBlockX() + "," + location.getBlockY() + "," + location.getBlockZ();
