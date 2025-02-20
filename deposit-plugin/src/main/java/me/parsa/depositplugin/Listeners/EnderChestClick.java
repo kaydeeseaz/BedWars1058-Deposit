@@ -5,8 +5,6 @@ import com.andrei1058.bedwars.api.arena.IArena;
 import com.andrei1058.bedwars.api.arena.team.ITeam;
 import com.andrei1058.bedwars.api.configuration.ConfigPath;
 import com.andrei1058.bedwars.api.language.Messages;
-import com.andrei1058.bedwars.arena.Arena;
-import com.sun.tools.doclint.HtmlTag;
 import me.parsa.depositapi.Events.PlayerDepositEvent;
 import me.parsa.depositapi.Types.DepositType;
 import me.parsa.depositplugin.Configs.ArenasConfig;
@@ -104,7 +102,8 @@ public class EnderChestClick implements Listener {
                             List<String> list = ArenasConfig.get().getStringList("worlds." + p.getWorld().getName() + ".chestLocations");
                             int size = list.size();
                             String the = "§6 ▪ §7ChestLocations: " + ((size == 0) ? "&c&l(NOT SET) " : (size < 16) ? "&e&l(NOT PROPERLY SET) " : (size == 16) ? "&a&l(SET) " : "&c&l(NOT SET) ") + "§8 - §eShift + Left-Click ";
-                            p.sendMessage(the);
+                            String made_the = ChatColor.translateAlternateColorCodes('&', the);
+                            p.sendMessage(made_the);
                             p.playSound(p.getLocation(), Sound.NOTE_STICKS, 1, 1);
                             removePlayerFromSelectionMode(p);
                             switch (block.getType()) {
@@ -114,6 +113,7 @@ public class EnderChestClick implements Listener {
                                 case CHEST:
                                     createHologram(block.getLocation(), ChatColor.AQUA + "Team Chest" + ChatColor.BOLD + " Deposit Set");
                                     break;
+
                             }
 
                         } else {
@@ -163,47 +163,62 @@ public class EnderChestClick implements Listener {
                                         @Override
                                         public void run() {
                                             if (DepositPlugin.plugin.getConfig().getBoolean("deposit-whole-itemstack")) {
+                                                int totalCount = 0;
+
                                                 for (ItemStack itemStack : p.getInventory().getContents()) {
-                                                    if (itemStack == null) {
+                                                    if (itemStack == null || itemStack.getType() != itemMat) {
                                                         continue;
                                                     }
-                                                    if (itemStack.getType() == itemMat) {
-                                                        itemCount[0] = itemStack.getAmount() + itemCount[0];
-                                                        p.getInventory().removeItem(item);
-                                                        enderChest.addItem(item);
-                                                    }
+
+                                                    int amount = itemStack.getAmount();
+                                                    totalCount += amount;
+
+
+                                                    p.getInventory().removeItem(itemStack);
+
+
+                                                    enderChest.addItem(itemStack);
                                                 }
-                                                if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
-                                                    String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
+
+
+                                                if (totalCount > 0) {
+                                                    String itemName = Arrays.stream(itemMat.toString().toLowerCase().split("_"))
                                                             .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
                                                             .collect(Collectors.joining(" "));
-                                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+
+                                                    p.sendMessage(ChatColor.GRAY + "You deposited x" + totalCount + " " + (itemMat == Material.GOLDEN_APPLE || itemMat == Material.GOLD_INGOT ? ChatColor.GOLD : ChatColor.WHITE) + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+
+                                                    p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + totalCount + "x " + itemMat + ChatColor.GOLD + " to the ender chest");
+
+                                                    p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
                                                 } else {
-                                                    String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
-                                                            .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
-                                                            .collect(Collectors.joining(" "));
-                                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + itemCount[0] + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+                                                    p.sendMessage(ChatColor.RED + "You don't have any " + itemMat + " to deposit!");
                                                 }
-                                                p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
-                                                p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
 
 
                                             } else {
-                                                if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
-                                                    String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
-                                                            .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
-                                                            .collect(Collectors.joining(" "));
-                                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
-                                                } else {
-                                                    String itemName = Arrays.stream(item.getType().toString().toLowerCase().split("_"))
-                                                            .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
-                                                            .collect(Collectors.joining(" "));
-                                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
-                                                }
-                                                p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the ender chest");
+                                                ItemStack itemInHand = p.getItemInHand();
+                                                if (itemInHand == null || itemInHand.getType() == Material.AIR || itemInHand.getType() != itemMat) return;
+
+                                                int amount = itemInHand.getAmount();
+
+                                                enderChest.addItem(itemInHand);
+
+                                                p.setItemInHand(null);
+
+                                                String itemName = Arrays.stream(itemMat.toString().toLowerCase().split("_"))
+                                                        .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                                                        .collect(Collectors.joining(" "));
+
+                                                p.sendMessage(ChatColor.GRAY + "You deposited x" + amount + " "
+                                                        + (itemMat == Material.GOLDEN_APPLE || itemMat == Material.GOLD_INGOT ? ChatColor.GOLD : ChatColor.WHITE)
+                                                        + itemName + ChatColor.GRAY + " to the" + ChatColor.LIGHT_PURPLE + " Ender Chest");
+
+                                                p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited "
+                                                        + ChatColor.WHITE + amount + "x " + itemMat + ChatColor.GOLD + " to the ender chest");
+
                                                 p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
-                                                p.getInventory().removeItem(item);
-                                                enderChest.addItem(item);
+
                                             }
 
                                         }
@@ -294,15 +309,28 @@ public class EnderChestClick implements Listener {
                                                 p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
                                                 p.getInventory().removeItem(item);
                                             } else {
-                                                if (item.getType() == Material.GOLDEN_APPLE || item.getType() == Material.GOLD_INGOT) {
-                                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.GOLD + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
-                                                } else {
-                                                    p.sendMessage(ChatColor.GRAY + "You" + " deposited x" + item.getAmount() + " " + ChatColor.WHITE + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
-                                                }
-                                                p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited " + ChatColor.WHITE + item.getAmount() + "x " + item.getType() + ChatColor.GOLD + " to the chest");
-                                                p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
+                                                ItemStack itemInHand = p.getItemInHand();
+                                                if (itemInHand == null || itemInHand.getType() == Material.AIR) return;
+
+                                                int amount = itemInHand.getAmount();
+
+                                                chestInventory.addItem(itemInHand);
+
                                                 p.setItemInHand(null);
-                                                chestInventory.addItem(item);
+
+                                                String itemName = Arrays.stream(itemInHand.getType().toString().toLowerCase().split("_"))
+                                                        .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1))
+                                                        .collect(Collectors.joining(" "));
+
+                                                p.sendMessage(ChatColor.GRAY + "You deposited x" + amount + " "
+                                                        + (itemInHand.getType() == Material.GOLDEN_APPLE || itemInHand.getType() == Material.GOLD_INGOT ? ChatColor.GOLD : ChatColor.WHITE)
+                                                        + itemName + ChatColor.GRAY + " to the" + ChatColor.AQUA + " Team Chest");
+
+                                                p.getServer().getConsoleSender().sendMessage(ChatColor.GOLD + p.getName() + " deposited "
+                                                        + ChatColor.WHITE + amount + "x " + itemInHand.getType() + ChatColor.GOLD + " to the chest");
+
+                                                p.playSound(p.getLocation(), Sound.CHEST_CLOSE, 1.0f, 1.0f);
+
                                             }
 
                                         }
