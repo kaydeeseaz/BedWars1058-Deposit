@@ -16,8 +16,9 @@ public class PlayerJoin implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
+                    DepositPlugin.debug("WorldLoadEvent ran");
                     new GameStartListener(DepositPlugin.plugin, ArenasConfig.get()).createHDLocations();
-                    DepositPlugin.debug("WorldLoadEvent called");
+                    DepositPlugin.debug("WorldLoadEvent done");
                 }
             }.runTaskAsynchronously(DepositPlugin.plugin);
         }

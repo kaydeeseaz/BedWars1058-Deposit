@@ -107,7 +107,15 @@ public class EnderChestClick implements Listener {
                             p.sendMessage(the);
                             p.playSound(p.getLocation(), Sound.NOTE_STICKS, 1, 1);
                             removePlayerFromSelectionMode(p);
-                            createHologram(block.getLocation(), ChatColor.GOLD + "Deposit Chest Set");
+                            switch (block.getType()) {
+                                case ENDER_CHEST:
+                                    createHologram(block.getLocation(), ChatColor.DARK_PURPLE + "Ender Chest" + ChatColor.BOLD + " Deposit Set");
+                                    break;
+                                case CHEST:
+                                    createHologram(block.getLocation(), ChatColor.AQUA + "Team Chest" + ChatColor.BOLD + " Deposit Set");
+                                    break;
+                            }
+
                         } else {
                             p.sendMessage(ChatColor.YELLOW + "This chest is already set!");
                             removePlayerFromSelectionMode(p);
