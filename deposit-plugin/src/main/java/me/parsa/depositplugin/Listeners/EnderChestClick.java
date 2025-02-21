@@ -9,6 +9,7 @@ import me.parsa.depositapi.Events.PlayerDepositEvent;
 import me.parsa.depositapi.Types.DepositType;
 import me.parsa.depositplugin.Configs.ArenasConfig;
 import me.parsa.depositplugin.DepositPlugin;
+import me.parsa.depositplugin.plugintypes.PluginType;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -78,7 +79,7 @@ public class EnderChestClick implements Listener {
     @EventHandler
     public void onPlayerLeftClickEnderChest(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if (DepositPlugin.bedWars.isInSetupSession(p.getUniqueId())) {
+        if ((DepositPlugin.pluginType == PluginType.BEDWARS1058) ? DepositPlugin.bedWars.isInSetupSession(p.getUniqueId()) : DepositPlugin.bedWars2023.isInSetupSession(p.getUniqueId())) {
             if (p.isSneaking()) {
                 if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Block block = e.getClickedBlock();
@@ -128,9 +129,9 @@ public class EnderChestClick implements Listener {
         } else {
             if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
                 if (e.getClickedBlock().getType() == Material.ENDER_CHEST) {
-                    BedWars bedwarsAPI = Bukkit.getServicesManager().getRegistration(BedWars.class).getProvider();
+
                     DepositPlugin.debug(p.getName() + " left-clicked on an Ender Chest!");
-                    if (bedwarsAPI.getArenaUtil().isPlaying(p)) {
+                    if ((DepositPlugin.pluginType == PluginType.BEDWARS1058) ? DepositPlugin.bedWars.getArenaUtil().isPlaying(p) : DepositPlugin.bedWars2023.getArenaUtil().isPlaying(p)) {
                         DepositPlugin.debug("Player is playing and clicked ");
                         ItemStack item = p.getItemInHand();
                         Material itemMat = item.getType();
@@ -244,10 +245,10 @@ public class EnderChestClick implements Listener {
             if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
                 if (e.getClickedBlock().getType() == Material.CHEST) {
-                    BedWars bedwarsAPI = Bukkit.getServicesManager().getRegistration(BedWars.class).getProvider();
+
                     DepositPlugin.debug(p.getName() + " left-clicked on a Chest!");
 
-                    if (bedwarsAPI.getArenaUtil().isPlaying(p)) {
+                    if ((DepositPlugin.pluginType == PluginType.BEDWARS1058) ? DepositPlugin.bedWars.getArenaUtil().isPlaying(p) : DepositPlugin.bedWars2023.getArenaUtil().isPlaying(p)) {
                         DepositPlugin.debug("Player is playing and clicked ");
                         ItemStack item = p.getItemInHand();
                         Material itemMat = item.getType();
@@ -364,57 +365,114 @@ public class EnderChestClick implements Listener {
     @EventHandler
     public void enderChestClick(PlayerDepositEvent event) {
         if (event.getDepositType() == DepositType.CHEST) {
-            Player p = event.getPlayer();
-            DepositPlugin.debug("Checking deposit event for player: " + p.getName());
+            if (DepositPlugin.pluginType == PluginType.BEDWARS1058) {
+                Player p = event.getPlayer();
+                DepositPlugin.debug("Checking deposit event for player: " + p.getName());
 
-            IArena a = DepositPlugin.bedWars.getArenaUtil().getArenaByPlayer(p);
-            if (a == null) {
-                DepositPlugin.debug("Arena is null for player: " + p.getName());
-                return;
-            }
-
-            ITeam owner = null;
-            int isRad = a.getConfig().getInt(ConfigPath.ARENA_ISLAND_RADIUS);
-            DepositPlugin.debug("Arena radius: " + isRad);
-
-            Block block = event.getBlock();
-            if (block == null) {
-                DepositPlugin.debug("Block is null for player: " + p.getName());
-                return;
-            }
-
-            Location blockLoc = block.getLocation();
-            DepositPlugin.debug("Block location: " + blockLoc);
-
-            for (ITeam t : a.getTeams()) {
-                if (t == null || t.getSpawn() == null) {
-                    DepositPlugin.debug("Skipping team due to null spawn.");
-                    continue;
+                IArena a = DepositPlugin.bedWars.getArenaUtil().getArenaByPlayer(p);
+                if (a == null) {
+                    DepositPlugin.debug("Arena is null for player: " + p.getName());
+                    return;
                 }
-                DepositPlugin.debug("Checking team: " + t.getName() + " with spawn at " + t.getSpawn());
 
-                if (t.getSpawn().distance(blockLoc) <= isRad) {
-                    owner = t;
-                    DepositPlugin.debug("Found owner: " + t.getName());
+                ITeam owner = null;
+                int isRad = a.getConfig().getInt(ConfigPath.ARENA_ISLAND_RADIUS);
+                DepositPlugin.debug("Arena radius: " + isRad);
+
+                Block block = event.getBlock();
+                if (block == null) {
+                    DepositPlugin.debug("Block is null for player: " + p.getName());
+                    return;
                 }
-            }
 
-            if (owner != null) {
-                if (!owner.isMember(p)) {
-                    DepositPlugin.debug("Player " + p.getName() + " is NOT a member of " + owner.getName());
+                Location blockLoc = block.getLocation();
+                DepositPlugin.debug("Block location: " + blockLoc);
 
-                    if (!(owner.getMembers().isEmpty() && owner.isBedDestroyed())) {
-                        DepositPlugin.debug("Team " + owner.getName() + " is still in the game. Cancelling event.");
-                        event.setCancelled(true);
-                        p.sendMessage(getMsg(p, Messages.INTERACT_CHEST_CANT_OPEN_TEAM_ELIMINATED));
+                for (ITeam t : a.getTeams()) {
+                    if (t == null || t.getSpawn() == null) {
+                        DepositPlugin.debug("Skipping team due to null spawn.");
+                        continue;
+                    }
+                    DepositPlugin.debug("Checking team: " + t.getName() + " with spawn at " + t.getSpawn());
+
+                    if (t.getSpawn().distance(blockLoc) <= isRad) {
+                        owner = t;
+                        DepositPlugin.debug("Found owner: " + t.getName());
+                    }
+                }
+
+                if (owner != null) {
+                    if (!owner.isMember(p)) {
+                        DepositPlugin.debug("Player " + p.getName() + " is NOT a member of " + owner.getName());
+
+                        if (!(owner.getMembers().isEmpty() && owner.isBedDestroyed())) {
+                            DepositPlugin.debug("Team " + owner.getName() + " is still in the game. Cancelling event.");
+                            event.setCancelled(true);
+                            p.sendMessage(getMsg(p, com.tomkeuper.bedwars.api.language.Messages.INTERACT_CHEST_CANT_OPEN_TEAM_ELIMINATED));
+                        } else {
+                            DepositPlugin.debug("Team " + owner.getName() + " is eliminated, allowing chest interaction.");
+                        }
                     } else {
-                        DepositPlugin.debug("Team " + owner.getName() + " is eliminated, allowing chest interaction.");
+                        DepositPlugin.debug("Player " + p.getName() + " is a member of " + owner.getName() + ", allowing access.");
                     }
                 } else {
-                    DepositPlugin.debug("Player " + p.getName() + " is a member of " + owner.getName() + ", allowing access.");
+                    DepositPlugin.debug("No team owns this chest.");
                 }
-            } else {
-                DepositPlugin.debug("No team owns this chest.");
+
+            } else if (DepositPlugin.pluginType == PluginType.BEDWARS2023) {
+                Player p = event.getPlayer();
+                DepositPlugin.debug("Checking deposit event for player: " + p.getName());
+
+                com.tomkeuper.bedwars.api.arena.IArena a = DepositPlugin.bedWars2023.getArenaUtil().getArenaByPlayer(p);
+                if (a == null) {
+                    DepositPlugin.debug("Arena is null for player: " + p.getName());
+                    return;
+                }
+
+                com.tomkeuper.bedwars.api.arena.team.ITeam owner = null;
+                int isRad = a.getConfig().getInt(com.tomkeuper.bedwars.api.configuration.ConfigPath.ARENA_ISLAND_RADIUS);
+                DepositPlugin.debug("Arena radius: " + isRad);
+
+                Block block = event.getBlock();
+                if (block == null) {
+                    DepositPlugin.debug("Block is null for player: " + p.getName());
+                    return;
+                }
+
+                Location blockLoc = block.getLocation();
+                DepositPlugin.debug("Block location: " + blockLoc);
+
+                for (com.tomkeuper.bedwars.api.arena.team.ITeam t : a.getTeams()) {
+                    if (t == null || t.getSpawn() == null) {
+                        DepositPlugin.debug("Skipping team due to null spawn.");
+                        continue;
+                    }
+                    DepositPlugin.debug("Checking team: " + t.getName() + " with spawn at " + t.getSpawn());
+
+                    if (t.getSpawn().distance(blockLoc) <= isRad) {
+                        owner = t;
+                        DepositPlugin.debug("Found owner: " + t.getName());
+                    }
+                }
+
+                if (owner != null) {
+                    if (!owner.isMember(p)) {
+                        DepositPlugin.debug("Player " + p.getName() + " is NOT a member of " + owner.getName());
+
+                        if (!(owner.getMembers().isEmpty() && owner.isBedDestroyed())) {
+                            DepositPlugin.debug("Team " + owner.getName() + " is still in the game. Cancelling event.");
+                            event.setCancelled(true);
+                            p.sendMessage(getMsg(p, Messages.INTERACT_CHEST_CANT_OPEN_TEAM_ELIMINATED));
+                        } else {
+                            DepositPlugin.debug("Team " + owner.getName() + " is eliminated, allowing chest interaction.");
+                        }
+                    } else {
+                        DepositPlugin.debug("Player " + p.getName() + " is a member of " + owner.getName() + ", allowing access.");
+                    }
+                } else {
+                    DepositPlugin.debug("No team owns this chest.");
+                }
+
             }
 
         }
