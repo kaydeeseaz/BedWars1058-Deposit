@@ -78,12 +78,12 @@ public final class DepositPlugin extends JavaPlugin {
     }
     private void createConfigWithComments(File configFile) {
         try {
-            // Create the config file
-            configFile.getParentFile().mkdirs();  // Ensure the folder exists
+
+            configFile.getParentFile().mkdirs();
             if (configFile.createNewFile()) {
                 StringBuilder configContent = new StringBuilder();
 
-                // Add comments manually to the config content
+
                 configContent.append("# ──────────────────────────────────────────────────────────────\n");
                 configContent.append("#   Punch to deposit - BedWars1058 Addon Configuration\n");
                 configContent.append("# ──────────────────────────────────────────────────────────────\n");
@@ -137,7 +137,6 @@ public final class DepositPlugin extends JavaPlugin {
                 configContent.append("# If enabled (true), all chest locations will be saved when the a player joins the server.\n");
                 configContent.append("set-chest-locations-on-join: true\n");
 
-                // Write the content to the file
                 java.nio.file.Files.write(configFile.toPath(), configContent.toString().getBytes());
             }
         } catch (IOException e) {
