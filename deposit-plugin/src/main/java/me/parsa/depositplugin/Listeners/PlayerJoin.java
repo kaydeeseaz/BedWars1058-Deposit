@@ -10,7 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class PlayerJoin implements Listener {
     @EventHandler
     public void playerJoinEvent(PlayerJoinEvent event) {
-        if (DepositPlugin.plugin.getConfig().getBoolean("set-chest-locations-on-join")) {
+        if (DepositPlugin.plugin.configuration.getBoolean("set-chest-locations-on-join")) {
             new BukkitRunnable() {
                 @Override
                 public void run() {

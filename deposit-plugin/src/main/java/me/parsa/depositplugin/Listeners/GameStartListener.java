@@ -37,7 +37,7 @@ public class GameStartListener implements Listener {
     @EventHandler
     public void onGameStart(GameStateChangeEvent event) {
         if (event.getNewState() == GameState.playing) {
-            if (DepositPlugin.plugin.getConfig().getString("hologram-register-event").equalsIgnoreCase("GameStateChangeEvent")) {
+            if (DepositPlugin.plugin.configuration.getString("hologram-register-event").equalsIgnoreCase("GameStateChangeEvent")) {
                 DepositPlugin.debug("TeamAssignEvent triggered");
                 succesGameState = true;
 
@@ -142,7 +142,7 @@ public class GameStartListener implements Listener {
 
     @EventHandler
     public void onGameAssgin(TeamAssignEvent event) {
-        if (DepositPlugin.plugin.getConfig().getString("hologram-register-event").equalsIgnoreCase("TeamAssignEvent")) {
+        if (DepositPlugin.plugin.configuration.getString("hologram-register-event").equalsIgnoreCase("TeamAssignEvent")) {
             DepositPlugin.debug("TeamAssignEvent triggered");
             successGameAssgin = true;
             Player player = event.getPlayer();
@@ -214,7 +214,7 @@ public class GameStartListener implements Listener {
             new BukkitRunnable(){
                 @Override
                 public void run() {
-                    if (!succesGameState && DepositPlugin.plugin.getConfig().getString("hologram-register-event").equalsIgnoreCase("GameStateChangeEvent")) {
+                    if (!succesGameState && DepositPlugin.plugin.configuration.getString("hologram-register-event").equalsIgnoreCase("GameStateChangeEvent")) {
                         event.getArena().getPlayers().forEach(player -> {
                             if (player.isOp()) {
                                 player.sendMessage(ChatColor.RED + "It looks like your event for registering holograms didn't work, you can make it work with changing hologram-register-event value to TeamAssignEvent");

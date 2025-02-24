@@ -1,5 +1,6 @@
 package me.parsa.depositplugin.Configs;
 
+import me.parsa.depositplugin.DepositPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -13,12 +14,10 @@ public class ArenasConfig {
     private static FileConfiguration fileConfiguration;
 
     public static void setup() {
-        file = new File(Bukkit.getServer().getPluginManager().getPlugin("bedwars1058-deposit").getDataFolder(), "chestLocations.yml");
+        file = new File(DepositPlugin.bedWars.getAddonsPath(), "chestLocations.yml");
 
 
         if (!file.exists()) {
-            //sddfdf
-            //df
             try {
                 file.createNewFile();
             } catch (IOException e) {

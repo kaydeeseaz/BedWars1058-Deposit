@@ -13,7 +13,7 @@ public class PlayerDeathListener implements Listener {
 
     @EventHandler
     public void onDeath(PlayerKillEvent event){
-        if (DepositPlugin.plugin.getConfig().getBoolean("disable-hologram-after-death")) {
+        if (DepositPlugin.plugin.configuration.getBoolean("disable-hologram-after-death")) {
             DepositPlugin.debug("PlayerKillEvent triggered");
             new BukkitRunnable() {
                 @Override

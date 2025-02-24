@@ -5,6 +5,7 @@ import com.andrei1058.bedwars.api.arena.IArena;
 import com.andrei1058.bedwars.api.arena.team.ITeam;
 import com.andrei1058.bedwars.api.configuration.ConfigPath;
 import com.andrei1058.bedwars.api.language.Messages;
+import com.andrei1058.bedwars.api.server.ISetupSession;
 import me.parsa.depositapi.Events.PlayerDepositEvent;
 import me.parsa.depositapi.Types.DepositType;
 import me.parsa.depositplugin.Configs.ArenasConfig;
@@ -101,7 +102,14 @@ public class EnderChestClick implements Listener {
                             p.sendMessage(ChatColor.GREEN + "Chest location added: " + chestLocation);
                             List<String> list = ArenasConfig.get().getStringList("worlds." + p.getWorld().getName() + ".chestLocations");
                             int size = list.size();
-                            String the = "§6 ▪ §7ChestLocations: " + ((size == 0) ? "&c&l(NOT SET) " : (size < 16) ? "&e&l(NOT PROPERLY SET) " : (size == 16) ? "&a&l(SET) " : "&c&l(NOT SET) ") + "§8 - §eShift + Left-Click ";
+                            ISetupSession setupSession = DepositPlugin.bedWars.getSetupSession(p.getUniqueId());
+                            String the = null;
+                            if (setupSession.getConfig().getInt("maxInTeam") == 2 && setupSession.getConfig().getInt("maxInTeam") == 1) {
+                                the = "§6 ▪ §7ChestLocations: " + ((size == 0) ? "&c&l(NOT SET) " : (size < 16) ? "&e&l(NOT PROPERLY SET) " : (size == 16) ? "&a&l(SET) " : "&c&l(NOT SET) ") + "§8 - §eShift + Left-Click ";
+                            } else if (setupSession.getConfig().getInt("maxInTeam") == 3 && setupSession.getConfig().getInt("maxInTeam") == 4) {
+                                the = "§6 ▪ §7ChestLocations: " + ((size == 0) ? "&c&l(NOT SET) " : (size < 8) ? "&e&l(NOT PROPERLY SET) " : (size == 8) ? "&a&l(SET) " : "&c&l(NOT SET) ") + "§8 - §eShift + Left-Click ";
+                            }
+
                             String made_the = ChatColor.translateAlternateColorCodes('&', the);
                             p.sendMessage(made_the);
                             p.playSound(p.getLocation(), Sound.NOTE_STICKS, 1, 1);
@@ -162,7 +170,7 @@ public class EnderChestClick implements Listener {
                                     new BukkitRunnable(){
                                         @Override
                                         public void run() {
-                                            if (DepositPlugin.plugin.getConfig().getBoolean("deposit-whole-itemstack")) {
+                                            if (DepositPlugin.plugin.configuration.getBoolean("deposit-whole-itemstack")) {
                                                 int totalCount = 0;
 
                                                 for (ItemStack itemStack : p.getInventory().getContents()) {
@@ -288,7 +296,7 @@ public class EnderChestClick implements Listener {
                                     new BukkitRunnable(){
                                         @Override
                                         public void run() {
-                                            if (DepositPlugin.plugin.getConfig().getBoolean("deposit-whole-itemstack")) {
+                                            if (DepositPlugin.plugin.configuration.getBoolean("deposit-whole-itemstack")) {
                                                 for (ItemStack itemStack : p.getInventory().getContents()) {
                                                     if (itemStack == null) {
                                                         continue;
