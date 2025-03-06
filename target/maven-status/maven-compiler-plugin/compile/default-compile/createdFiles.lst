@@ -1,0 +1,5 @@
+me\parsa\depositplugin\DepositPlugin.class
+me\parsa\depositplugin\Listeners\ChestListener.class
+me\parsa\depositplugin\Listeners\GameListener.class
+me\parsa\depositplugin\Utils\Utils.class
+me\parsa\depositplugin\Utils\Cache.class

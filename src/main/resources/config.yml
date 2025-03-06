@@ -1,0 +1,11 @@
+holograms:
+  - §7PUNCH TO
+  - §7DEPOSIT
+undepositable:
+  - AIR
+  - _SWORD
+  - COMPASS
+  - _PICKAXE
+  - _AXE
+  - SHEARS
+distance: 0.3

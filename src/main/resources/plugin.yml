@@ -1,0 +1,4 @@
+name: BedWars1058-Deposit
+version: '${project.version}'
+main: me.parsa.depositplugin.DepositPlugin
+softdepend: [BedWars1058]
