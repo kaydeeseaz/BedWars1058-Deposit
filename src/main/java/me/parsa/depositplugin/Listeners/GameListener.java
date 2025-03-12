@@ -3,6 +3,8 @@ package me.parsa.depositplugin.Listeners;
 import com.andrei1058.bedwars.api.arena.GameState;
 import com.andrei1058.bedwars.api.events.gameplay.GameEndEvent;
 import com.andrei1058.bedwars.api.events.gameplay.GameStateChangeEvent;
+import com.andrei1058.bedwars.api.events.server.ArenaDisableEvent;
+import com.andrei1058.bedwars.api.events.server.ArenaEnableEvent;
 import me.parsa.depositplugin.DepositPlugin;
 import me.parsa.depositplugin.Utils.Utils;
 import org.bukkit.Bukkit;
@@ -31,6 +33,14 @@ public class GameListener implements Listener {
             Utils.deleteHolograms(e.getArena());
         }
     }
+
+    @EventHandler
+    public void onArenaEnable(ArenaEnableEvent e) {
+        if(!Utils.chestLocations.containsKey(e.getArena().getWorldName())) {
+            Utils.calculateChestLocations(e.getArena());
+        }
+    }
+
 
 
 }
