@@ -38,6 +38,7 @@ public final class DepositPlugin extends JavaPlugin {
 
         saveDefaultConfig();
         configuration = getConfig();
+        Cache.loadCache();
 
         Bukkit.getConsoleSender().sendMessage("[Deposit] Registering events");
         Bukkit.getConsoleSender().sendMessage("[Deposit] Hooking into bw1058");
@@ -47,7 +48,6 @@ public final class DepositPlugin extends JavaPlugin {
             return;
         }
         Bukkit.getScheduler().runTaskLater(this, () -> {
-            Cache.loadCache();
             // await all arenas to load
             for (IArena arena : Arena.getArenas()) {
                 String worldName = arena.getWorldName();
