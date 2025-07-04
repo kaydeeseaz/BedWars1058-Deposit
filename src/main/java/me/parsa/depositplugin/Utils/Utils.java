@@ -85,22 +85,29 @@ public class Utils {
     public static void calculateChestLocations(IArena arena) {
         String worldName = arena.getWorldName();
         ArrayList<Location> locations = new ArrayList<>();
-        for (ITeam team : arena.getTeams()) {
+        if(Cache.cache.isSet("arenas."+worldName)) {
+            for (int i = 1; i < 99; i++) {
+                if(!Cache.cache.isSet("arenas."+worldName+".location"+i)) break;
+                locations.add((Location) Cache.cache.get("arenas."+worldName+".location"+i));
+                i++;
+            }
+        } else {
+            for (ITeam team : arena.getTeams()) {
                 for (Block nearbyBlock : getNearbyBlocks(team.getSpawn(), arena.getIslandRadius())) {
-                    if(
+                    if (
                             nearbyBlock.getType() == Material.CHEST ||
-                            nearbyBlock.getType() == Material.ENDER_CHEST) {
+                                    nearbyBlock.getType() == Material.ENDER_CHEST) {
 
                         locations.add(nearbyBlock.getLocation());
-
                     }
                 }
                 int i = 1;
                 for (Location location : locations) {
-                    Cache.cache.set("arenas."+worldName+".location"+i, location);
+                    Cache.cache.set("arenas." + worldName + ".location" + i, location);
                     i++;
                 }
 
+            }
         }
         chestLocations.put(worldName, locations);
 
