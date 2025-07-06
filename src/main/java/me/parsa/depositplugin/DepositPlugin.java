@@ -38,7 +38,6 @@ public final class DepositPlugin extends JavaPlugin {
 
         saveDefaultConfig();
         configuration = getConfig();
-        Cache.loadCache();
 
         Bukkit.getConsoleSender().sendMessage("[Deposit] Registering events");
         Bukkit.getConsoleSender().sendMessage("[Deposit] Hooking into bw1058");
@@ -49,6 +48,9 @@ public final class DepositPlugin extends JavaPlugin {
         }
         Bukkit.getScheduler().runTaskLater(this, () -> {
             // await all arenas to load
+            Cache.loadCache();
+            getServer().getPluginManager().registerEvents(new ChestListener(), this);
+            getServer().getPluginManager().registerEvents(new GameListener(), this);
             for (IArena arena : Arena.getArenas()) {
                 String worldName = arena.getWorldName();
                 if(Cache.cache.isSet("arenas."+worldName)) {
@@ -67,11 +69,8 @@ public final class DepositPlugin extends JavaPlugin {
                     Utils.calculateChestLocations(arena);
                 }
             }
+            Bukkit.getConsoleSender().sendMessage("[Deposit] Enabled plugin");
         }, 20*20);
-        getServer().getPluginManager().registerEvents(new ChestListener(), this);
-        getServer().getPluginManager().registerEvents(new GameListener(), this);
-        Bukkit.getConsoleSender().sendMessage("[Deposit] Enabled plugin");
-
     }
 
     @Override
